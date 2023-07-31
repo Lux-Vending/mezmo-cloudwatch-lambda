@@ -1,6 +1,7 @@
 {
   "name": "logdna-cloudwatch",
   "version": "2.2.1",
+  "private": true,
   "description": "Lambda Functions to Stream Logs from AWS CloudWatch to LogDNA",
   "main": "index.js",
   "scripts": {
@@ -13,7 +14,14 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "eslint": "^6.7.2",
+    "@commitlint/cli": "^17.6.7",
+    "@commitlint/config-conventional": "^17.6.7",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-config-standard": "^17.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.0",
     "tap": "^14.10.7"
   },
   "keywords": [
@@ -30,6 +38,16 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/logdna/logdna-cloudwatch/issues"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "7.x"
   },
   "homepage": "https://github.com/logdna/logdna-cloudwatch"
 }
