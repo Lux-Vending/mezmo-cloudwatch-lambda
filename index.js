@@ -58,12 +58,22 @@ const parseGroup = (group) => {
     task = 'web'
     project = group.replace('/ecs/', '').replace('-td', '')
   } else {
-    environment = groupComponents[len - 2]
-    const maybeTask = groupComponents[len - 3]
+    environment = groupComponents[len - 3]
+    let maybeTask = groupComponents[len - 2]
+    let environmentFirst = true
+    if (['dev', 'staging', 'canary', 'prod'].includes(maybeTask)) {
+      environment = maybeTask
+      maybeTask = groupComponents[len -3]
+      environmentFirst = false
+    }
     task = ['web', 'worker', 'migrate'].includes(maybeTask) ? maybeTask : 'web'
     project = group.replace('/ecs/', '')
     if (task === maybeTask) {
-      project = project.replace(`-${task}-${environment}-td`, '')
+      if (environmentFirst) {
+        project = project.replace(`-${environment}-${task}-td`, '')
+      } else {
+        project = project.replace(`-${task}-${environment}-td`, '')
+      }
     } else {
       project = project.replace(`-${environment}-td`, '')
     }
