@@ -3,6 +3,7 @@ const agent = require('agentkeepalive')
 const asyncRetry = require('async').retry
 const request = require('request')
 const zlib = require('zlib')
+const parseStreamComponents = require('./lib/parser')
 
 // Constants
 const MAX_REQUEST_TIMEOUT_MS = parseInt(process.env.LOGDNA_MAX_REQUEST_TIMEOUT) || 30000
@@ -47,78 +48,6 @@ const parseEvent = (event) => {
   return JSON.parse(zlib.unzipSync(Buffer.from(event.awslogs.data, 'base64')))
 }
 
-const parseGroup = (group) => {
-  const groupComponents = group.replace('/ecs/', '').split('-')
-  const len = groupComponents.length
-  let environment
-  let task
-  let project
-  if (len === 2) {
-    environment = 'prod'
-    task = 'web'
-    project = group.replace('/ecs/', '').replace('-td', '')
-  } else {
-    environment = groupComponents[len - 3]
-    let maybeTask = groupComponents[len - 2]
-    let environmentFirst = true
-    if (['dev', 'staging', 'canary', 'prod'].includes(maybeTask)) {
-      environment = maybeTask
-      maybeTask = groupComponents[len -3]
-      environmentFirst = false
-    }
-    task = ['web', 'worker', 'migrate'].includes(maybeTask) ? maybeTask : 'web'
-    project = group.replace('/ecs/', '')
-    if (task === maybeTask) {
-      if (environmentFirst) {
-        project = project.replace(`-${environment}-${task}-td`, '')
-      } else {
-        project = project.replace(`-${task}-${environment}-td`, '')
-      }
-    } else {
-      project = project.replace(`-${environment}-td`, '')
-    }
-  }
-  return {
-    platform: group.split('/')[1],
-    environment,
-    project,
-    app: 'main',
-    task,
-    revision: 'unknown'
-  }
-}
-
-const parseStreamComponents = (componentString, groupString) => {
-  const parsed = {}
-
-  const idComponents = componentString.split('/')
-  if (idComponents.length === 6) {
-    parsed.platform = idComponents[0]
-    parsed.environment = idComponents[1]
-    parsed.project = idComponents[2]
-    parsed.app = idComponents[3]
-    parsed.task = idComponents[4]
-    parsed.revision = idComponents[5]
-  } else if (idComponents.length === 5) {
-    parsed.platform = idComponents[0]
-    parsed.environment = idComponents[1]
-    parsed.project = idComponents[2]
-    parsed.app = 'main'
-    parsed.task = idComponents[3]
-    parsed.revision = idComponents[4]
-  } else {
-    const groupComponents = parseGroup(groupString)
-    parsed.platform = groupComponents.platform
-    parsed.environment = groupComponents.environment
-    parsed.project = groupComponents.project
-    parsed.app = groupComponents.app
-    parsed.task = groupComponents.task
-    parsed.revision = groupComponents.revision
-  }
-
-  return parsed
-}
-
 // Prepare the Messages and Options
 const prepareLogs = (eventData, logRawEvent) => {
   return eventData.logEvents.map((event) => {
@@ -158,7 +87,8 @@ const prepareLogs = (eventData, logRawEvent) => {
     if (logRawEvent) {
       let logObj = event.message
       if (typeof logObj === 'string') {
-        if (logObj[0] === '{') { // looks like JSON
+        if (logObj[0] === '{') {
+          // looks like JSON
           try {
             logObj = JSON.parse(logObj)
           } catch (err) {
