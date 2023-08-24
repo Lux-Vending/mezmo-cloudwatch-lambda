@@ -1,11 +1,19 @@
 {
   "name": "logdna-cloudwatch",
-  "version": "2.2.1",
+  "version": "3.1.1",
+  "private": true,
   "description": "Lambda Functions to Stream Logs from AWS CloudWatch to LogDNA",
   "main": "index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint -c .eslintrc index.js",
-    "test": "tap"
+    "test": "tap",
+    "prepare": "[ -f \"node_modules/.bin/husky\" ] && husky install || true"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "agentkeepalive": "^4.0.2",
@@ -13,8 +21,15 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "eslint": "^6.7.2",
-    "tap": "^14.10.7"
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-config-standard": "^17.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.3.0",
+    "prettier": "^3.0.2",
+    "tap": "^16.3.8"
   },
   "keywords": [
     "lambda",
@@ -30,6 +45,16 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/logdna/logdna-cloudwatch/issues"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "7.x"
   },
   "homepage": "https://github.com/logdna/logdna-cloudwatch"
 }
