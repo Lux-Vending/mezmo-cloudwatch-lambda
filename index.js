@@ -21,9 +21,10 @@ const DEFAULT_HTTP_ERRORS = [
   'ENOTFOUND'
 ]
 
+const pkg = require('./package.json')
+
 // Get Configuration from Environment Variables
 const getConfig = () => {
-  const pkg = require('./package.json')
   const config = {
     log_raw_event: false,
     UserAgent: `${pkg.name}/${pkg.version}`
@@ -113,7 +114,8 @@ const prepareLogs = (eventData, logRawEvent) => {
         eventLog.line = logObj
       }
     }
-    eventMetadata.rawLine = event.message
+    // eventMetadata.rawLine = event.message
+    eventMetadata.logShipperVersion = pkg.version
 
     if (typeof eventLog.line === 'object') {
       eventLog.line = JSON.stringify(eventLog.line)

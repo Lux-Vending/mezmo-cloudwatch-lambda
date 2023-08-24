@@ -67,6 +67,14 @@ test('test back-compat parser with all known variants', (t) => {
       app: 'main',
       task: 'worker',
       revision: 'unknown'
+    },
+    '/ecs/device-manager-fault-worker-td': {
+      platform: 'ecs',
+      environment: 'prod',
+      project: 'device-manager-fault',
+      app: 'main',
+      task: 'worker',
+      revision: 'unknown'
     }
   }
 
